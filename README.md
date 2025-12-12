@@ -1,93 +1,408 @@
-# Karhebti Backend - API REST Complète
+# 🚗 Karhebti Backend
 
-Backend REST complet développé avec **NestJS**, **TypeScript**, **MongoDB (Mongoose)** et **JWT** pour la gestion automobile avec fonctionnalités IA.
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
+<p align="center">
+  <img src="https://img.shields.io/badge/NestJS-11.0-E0234E?style=for-the-badge&logo=nestjs" alt="NestJS" />
+  <img src="https://img.shields.io/badge/TypeScript-5.6-3178C6?style=for-the-badge&logo=typescript" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/MongoDB-8.1-47A248?style=for-the-badge&logo=mongodb" alt="MongoDB" />
+  <img src="https://img.shields.io/badge/Firebase-13.6-FFCA28?style=for-the-badge&logo=firebase" alt="Firebase" />
 </p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
-## Description
+Backend REST complet pour application automobile développé avec **NestJS**, **TypeScript**, **MongoDB** et **Firebase Cloud Messaging**. Système intelligent de gestion de véhicules avec SOS d'urgence, OCR de documents, notifications push et authentification sécurisée.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+---
 
-## Project setup
+## 📋 Table des matières
 
-```bash
-$ npm install
+- [✨ Fonctionnalités](#-fonctionnalités)
+- [🏗️ Architecture](#️-architecture)
+- [🚀 Installation](#-installation)
+- [⚙️ Configuration](#️-configuration)
+- [🔧 Utilisation](#-utilisation)
+- [📡 API Endpoints](#-api-endpoints)
+- [🧪 Tests](#-tests)
+
+---
+
+## ✨ Fonctionnalités
+
+### 🆘 Système SOS Breakdown
+- **Signalement de panne en temps réel** avec géolocalisation GPS
+- **Notification automatique** aux propriétaires de garages à proximité via Firebase FCM
+- **Acceptation/Refus de demande** par les garages
+- **Tracking en temps réel** du garage assigné après acceptation
+- **Statuts**: PENDING → ACCEPTED/REFUSED → IN_PROGRESS → COMPLETED
+
+### 📄 OCR Intelligent de Documents
+- **Scan automatique** de documents automobiles (carte grise, assurance, permis)
+- **Extraction de texte** avec Tesseract.js (support Français/Arabe)
+- **Validation automatique** des dates d'expiration
+- **Notification préventive** 30 jours avant expiration
+- **Types supportés**: ASSURANCE, CARTE_GRISE, PERMIS_CONDUIRE, VISITE_TECHNIQUE
+
+### 🔔 Système de Notifications
+- **Push notifications** via Firebase Cloud Messaging
+- **Notifications persistantes** en base de données MongoDB
+- **Statuts**: PENDING → SENT → READ/FAILED
+- **Types**: sos_request, sos_accepted, document_expiry, general
+
+### 🔐 Authentification & Sécurité
+- **JWT tokens** avec expiration 24h
+- **OTP via SMS** (Twilio) pour vérification téléphone
+- **Email verification** pour inscription
+- **Rôles utilisateur**: admin, utilisateur, propGarage
+- **Guards NestJS** pour protection des routes
+
+### 🚙 Gestion de Véhicules
+- **CRUD complet** pour voitures
+- **Validation AI des images** avec Google Gemini
+- **Historique de maintenance** avec rappels automatiques
+- **Historique de remplacement** de pièces
+
+### 🔧 Autres Modules
+- **Garages**: Géolocalisation via OpenStreetMap
+- **Pièces détachées**: Catalogue avec prix
+- **Réservations**: Système de prise de rendez-vous
+- **Réclamations**: Gestion des plaintes utilisateurs
+- **Conversations**: Chat entre utilisateurs et garages
+- **Traduction**: Support multilingue avec Azure Translator
+
+---
+
+## 🏗️ Architecture
+
+```
+src/
+├── ai/                    # Validation d'images avec Gemini AI
+├── auth/                  # Authentification JWT + OTP
+├── breakdowns/            # 🆘 Système SOS de pannes
+├── cars/                  # Gestion des véhicules
+├── chat/                  # WebSocket Gateway
+├── common/                # Guards, Decorators, Config
+├── conversations/         # Messagerie
+├── documents/             # 📄 OCR + Gestion documents
+├── firebase/              # FCM + Firebase Auth
+├── garages/               # Garages + OSM
+├── maintenances/          # Entretien véhicules
+├── notifications/         # 🔔 Notifications push/DB
+├── parts/                 # Pièces détachées
+├── reclamations/          # Réclamations
+├── repair-bays/           # Baies de réparation
+├── reservation/           # Réservations
+├── services/              # Services garages
+├── swipes/                # Système de matching
+├── translation/           # Traduction multilingue
+├── user-location/         # Géolocalisation utilisateurs
+└── users/                 # Gestion utilisateurs
 ```
 
-## Compile and run the project
+**Stack Technique:**
+- **Framework**: NestJS 11.0.1
+- **Runtime**: Node.js 22.11
+- **Database**: MongoDB 8.1.9 avec Mongoose ODM
+- **Auth**: JWT + Passport.js
+- **Notifications**: Firebase Admin SDK 13.6
+- **OCR**: Tesseract.js 6.0.1
+- **Image Processing**: Sharp 0.34.5
+- **File Upload**: Multer 2.0.2
+- **Validation**: class-validator + class-transformer
+- **Documentation**: Swagger/OpenAPI
 
+---
+
+## 🚀 Installation
+
+### Prérequis
+
+- **Node.js** 18.x ou supérieur
+- **MongoDB** 6.x ou supérieur (local ou Atlas)
+- **npm** ou **yarn**
+- **Firebase project** avec FCM activé
+
+### Étapes d'installation
+
+**1. Cloner le repository**
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+git clone https://github.com/eyamosbeh/karhebti-backend.git
+cd karhebti-backend
 ```
 
-## Run tests
-
+**2. Installer les dépendances**
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+npm install
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
+**3. Configurer MongoDB**
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+# Option 1: MongoDB local
+mongod --dbpath /path/to/your/data
+
+# Option 2: MongoDB Atlas (cloud)
+# Créez un cluster gratuit sur https://www.mongodb.com/cloud/atlas
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+**4. Configurer Firebase**
+- Créez un projet sur [Firebase Console](https://console.firebase.google.com)
+- Activez **Cloud Messaging**
+- Téléchargez le fichier de clé privée (Service Account)
+- Placez-le dans `src/firebase/karhebti-adminsdk.json`
 
-## Resources
+**5. Configurer les variables d'environnement**
+Créez un fichier `.env` à la racine du projet (voir section Configuration ci-dessous)
 
-Check out a few resources that may come in handy when working with NestJS:
+---
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+## ⚙️ Configuration
 
-## Support
+Créez un fichier `.env` avec les variables suivantes:
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+```env
+# MongoDB
+MONGODB_URI=mongodb://localhost:27017/karhebti
 
-## Stay in touch
+# JWT
+JWT_SECRET=votre-secret-jwt-super-securise
+JWT_EXPIRES_IN=24h
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+# Firebase
+FIREBASE_KEY_PATH=src/firebase/karhebti-adminsdk.json
 
-## License
+# Email (SMTP)
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USER=votre-email@gmail.com
+EMAIL_PASSWORD=votre-mot-de-passe-app
+EMAIL_FROM=noreply@karhebti.com
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+# Twilio (SMS OTP)
+TWILIO_ACCOUNT_SID=ACxxxxxxxxxxxxxxxxxxxxxxxxxx
+TWILIO_AUTH_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxx
+TWILIO_PHONE_NUMBER=+1234567890
+
+# Azure Translator (Optionnel)
+AZURE_TRANSLATOR_KEY=votre-cle-azure
+AZURE_TRANSLATOR_REGION=westeurope
+AZURE_TRANSLATOR_ENDPOINT=https://api.cognitive.microsofttranslator.com
+
+# Google Gemini AI (Validation images)
+GEMINI_API_KEY=votre-cle-gemini
+
+# Application
+PORT=3000
+NODE_ENV=development
+```
+
+### 🔒 Sécurité des clés
+
+**⚠️ IMPORTANT**: Ne commitez JAMAIS vos clés API!
+
+Le `.gitignore` exclut automatiquement:
+- `.env`
+- `src/firebase/*.json`
+- `node_modules/`
+- `uploads/`
+
+---
+
+## 🔧 Utilisation
+
+### Démarrer le serveur
+
+```bash
+# Mode développement avec hot-reload
+npm run start:dev
+
+# Mode production
+npm run build
+npm run start:prod
+```
+
+Le serveur démarre sur: **http://localhost:3000**
+
+### Documentation API Swagger
+
+Une fois le serveur lancé, accédez à la documentation interactive:
+**http://localhost:3000/api**
+
+### Seed initial de données
+
+```bash
+# Créer des garages de test
+node scripts/seed-garages.js
+
+# Vérifier les utilisateurs
+npx ts-node check-users.ts
+```
+
+---
+
+## 📡 API Endpoints
+
+### 🔐 Authentification
+```http
+POST   /auth/signup              # Inscription utilisateur
+POST   /auth/verify-otp          # Vérifier OTP SMS
+POST   /auth/login               # Connexion
+POST   /auth/verify-email        # Vérifier email
+POST   /auth/forgot-password     # Mot de passe oublié
+POST   /auth/reset-password      # Réinitialiser mot de passe
+```
+
+### 🆘 SOS Breakdowns
+```http
+POST   /breakdowns               # Créer demande SOS
+GET    /breakdowns               # Lister pannes
+GET    /breakdowns/:id           # Détails d'une panne
+PUT    /breakdowns/:id/accept    # Accepter (garage)
+PUT    /breakdowns/:id/refuse    # Refuser (garage)
+PATCH  /breakdowns/:id/status    # Mettre à jour statut
+DELETE /breakdowns/:id           # Supprimer
+```
+
+### 📄 Documents (OCR)
+```http
+POST   /documents/ocr            # Scanner document avec OCR
+GET    /documents                # Lister documents
+GET    /documents/:id            # Détails document
+PATCH  /documents/:id            # Mettre à jour
+DELETE /documents/:id            # Supprimer
+```
+
+### 🔔 Notifications
+```http
+GET    /notifications            # Lister notifications
+POST   /notifications/update-device-token  # Enregistrer token FCM
+PATCH  /notifications/:id/read   # Marquer comme lu
+```
+
+### 🚙 Véhicules
+```http
+POST   /cars                     # Ajouter voiture
+GET    /cars                     # Lister voitures
+GET    /cars/:id                 # Détails voiture
+PATCH  /cars/:id                 # Modifier
+DELETE /cars/:id                 # Supprimer
+POST   /cars/:id/image           # Upload image (validation AI)
+```
+
+### 🔧 Maintenances
+```http
+POST   /maintenances             # Créer maintenance
+GET    /maintenances             # Lister maintenances
+GET    /maintenances/:id         # Détails
+PATCH  /maintenances/:id         # Modifier
+DELETE /maintenances/:id         # Supprimer
+```
+
+### 🏪 Garages
+```http
+GET    /garages                  # Lister garages
+GET    /garages/:id              # Détails garage
+POST   /garages                  # Créer garage (admin)
+GET    /osm/search-garage        # Rechercher via OSM
+```
+
+### 💬 Conversations
+```http
+GET    /conversations            # Lister conversations
+GET    /conversations/:id        # Messages d'une conversation
+POST   /conversations/:id/messages  # Envoyer message
+```
+
+**Pour la liste complète des endpoints, consultez la documentation Swagger.**
+
+---
+
+## 🧪 Tests
+
+```bash
+# Tests unitaires
+npm run test
+
+# Tests E2E
+npm run test:e2e
+
+# Couverture de code
+npm run test:cov
+
+# Tests spécifiques
+npm run test -- breakdowns.service.spec.ts
+```
+
+---
+
+## 📦 Déploiement
+
+### Heroku
+
+```bash
+# Installer Heroku CLI
+heroku create karhebti-backend
+
+# Variables d'environnement
+heroku config:set MONGODB_URI=mongodb+srv://...
+heroku config:set JWT_SECRET=...
+
+# Déployer
+git push heroku main
+```
+
+### Docker
+
+```dockerfile
+FROM node:22-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --only=production
+COPY . .
+RUN npm run build
+EXPOSE 3000
+CMD ["node", "dist/main"]
+```
+
+```bash
+docker build -t karhebti-backend .
+docker run -p 3000:3000 --env-file .env karhebti-backend
+```
+
+---
+
+## 📚 Documentation Complémentaire
+
+- **[RESUME_FONCTIONNALITES.md](./RESUME_FONCTIONNALITES.md)** - Documentation détaillée des fonctionnalités
+- **[BACKEND_QUICK_START.md](./BACKEND_QUICK_START.md)** - Guide de démarrage rapide
+- **[DOCUMENT_EXPIRATION_NOTIFICATIONS.md](./DOCUMENT_EXPIRATION_NOTIFICATIONS.md)** - Système de notifications
+
+---
+
+## 🤝 Contribution
+
+Les contributions sont les bienvenues! Pour contribuer:
+
+1. Fork le projet
+2. Créez une branche (`git checkout -b feature/AmazingFeature`)
+3. Committez vos changements (`git commit -m 'Add AmazingFeature'`)
+4. Push vers la branche (`git push origin feature/AmazingFeature`)
+5. Ouvrez une Pull Request
+
+---
+
+## 📝 License
+
+Ce projet est sous licence MIT.
+
+---
+
+## 👨‍💻 Auteur
+
+**Eya Mosbeh**
+
+- GitHub: [@eyamosbeh](https://github.com/eyamosbeh)
+
+---
+
+## 🙏 Remerciements
+
+- [NestJS](https://nestjs.com/) - Framework backend
+- [MongoDB](https://www.mongodb.com/) - Base de données
+- [Firebase](https://firebase.google.com/) - Notifications push
+- [Tesseract.js](https://tesseract.projectnaptha.com/) - OCR
